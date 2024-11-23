@@ -1,0 +1,5 @@
+Requirements 
+
+1- Prototype an EDR: Build a minimal prototype an EDR to prove its design works.
+2- Simulate Systems: Mock or simplify dependencies (e.g., use hardcoded/test data or random generation).
+3- Use Best Practices: Apply version control, team workflows, testing, libraries, and continuous integration.
