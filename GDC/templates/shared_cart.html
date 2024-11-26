@@ -1,0 +1,29 @@
+<!-- main/templates/shared_cart.html -->
+{% extends 'base.html' %}
+{% block content %}
+<h1>{{ cart.name }}</h1>
+<table>
+    <tr>
+        <th>Item</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        <th>Added By</th>
+        <th>Actions</th>
+    </tr>
+    {% for item in items %}
+    <tr>
+        <td>{{ item.item.name }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.item.price }}</td>
+        <td>{{ item.added_by.username }}</td>
+        <td>
+            <a href="{% url 'modify_item' cart.id item.id %}">Modify</a>
+            <a href="{% url 'remove_item' cart.id item.id %}">Remove</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+<p>Total Price: {{ total_price }}</p>
+<p>Your Share: {{ split_price }}</p>
+<a href="{% url 'add_item' cart.id %}">Add Item</a>
+{% endblock %}

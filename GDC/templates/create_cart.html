@@ -1,0 +1,11 @@
+<!-- main/templates/create_cart.html -->
+{% extends 'base.html' %}
+{% block content %}
+<h1>Create a New Shared Cart</h1>
+<form method="post">
+    {% csrf_token %}
+    <label for="cart_name">Cart Name:</label>
+    <input type="text" name="cart_name" required>
+    <button type="submit">Create Cart</button>
+</form>
+{% endblock %}

@@ -1,0 +1,11 @@
+<!-- main/templates/remove_item.html -->
+{% extends 'base.html' %}
+{% block content %}
+<h1>Remove {{ cart_item.item.name }} from {{ cart.name }}</h1>
+<form method="post">
+    {% csrf_token %}
+    <p>Are you sure you want to remove this item?</p>
+    <button type="submit">Yes, Remove</button>
+    <a href="{% url 'shared_cart' cart.id %}">Cancel</a>
+</form>
+{% endblock %}

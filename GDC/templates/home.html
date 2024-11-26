@@ -1,0 +1,18 @@
+<!-- main/templates/home.html -->
+{% extends 'base.html' %}
+{% block content %}
+<h1>Welcome, {{ user.username }}!</h1>
+<h2>Your Shared Carts:</h2>
+{% if shared_carts %}
+    <ul>
+        {% for cart in shared_carts %}
+            <li>
+                <a href="{% url 'shared_cart' cart.id %}">{{ cart.name }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>You are not part of any shared carts.</p>
+{% endif %}
+<a href="{% url 'create_cart' %}">Create a New Shared Cart</a>
+{% endblock %}

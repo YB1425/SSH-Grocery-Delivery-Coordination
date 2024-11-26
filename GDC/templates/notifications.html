@@ -1,0 +1,13 @@
+<!-- main/templates/notifications.html -->
+{% extends 'base.html' %}
+{% block content %}
+<h1>Your Notifications</h1>
+<ul>
+    {% for notification in notifications %}
+    <li>
+        {{ notification.message }} - {{ notification.created_at }}
+        <a href="{% url 'mark_notification_read' notification.id %}">Mark as Read</a>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}

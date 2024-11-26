@@ -28,6 +28,23 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+
+
+# Message Framework
+from django.contrib.messages import constants as messages
+MESSAGE_TAGS = {
+    messages.DEBUG: 'debug',
+    messages.INFO: 'info',
+    messages.SUCCESS: 'success',
+    messages.WARNING: 'warning',
+    messages.ERROR: 'error',
+}
+
+
+# Redirect URLs after login/logout
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'login'
+
 # Application definition
 
 INSTALLED_APPS = [

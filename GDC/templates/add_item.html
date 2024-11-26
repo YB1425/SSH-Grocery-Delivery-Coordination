@@ -1,0 +1,13 @@
+<!-- main/templates/add_item.html -->
+{% extends 'base.html' %}
+{% block content %}
+<h1>Add Item to {{ cart.name }}</h1>
+<form method="post">
+    {% csrf_token %}
+    <label for="item_name">Item Name:</label>
+    <input type="text" name="item_name" required>
+    <label for="quantity">Quantity:</label>
+    <input type="number" name="quantity" value="1" min="1">
+    <button type="submit">Add Item</button>
+</form>
+{% endblock %}

@@ -1,0 +1,11 @@
+<!-- main/templates/modify_item.html -->
+{% extends 'base.html' %}
+{% block content %}
+<h1>Modify {{ cart_item.item.name }} in {{ cart.name }}</h1>
+<form method="post">
+    {% csrf_token %}
+    <label for="quantity">Quantity:</label>
+    <input type="number" name="quantity" value="{{ cart_item.quantity }}" min="1">
+    <button type="submit">Update Item</button>
+</form>
+{% endblock %}
