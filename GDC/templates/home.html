@@ -1,104 +1,59 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<style>
-    /* General Styles */
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        background-color: #f9f9f9;
-    }
+<header style="display: flex; align-items: center; justify-content: space-between; padding: 20px; background-color: #000000;">
+    <!-- Logo -->
+    <div>
+        <a href="{% url 'home' %}" style="display: inline-block;">
+            <img src="https://i.imgur.com/ne6CXxW.png" alt="Logo" style="height: 50px; border-radius: 5px;">
+        </a>
+    </div>
+    
+    <!-- Welcome Message -->
+    <div style="display: flex; align-items: center; gap: 20px;">
+        <div style="background-color: #FFF9EF; color: #354EAD; padding: 10px 20px; border-radius: 8px; text-align: center;">
+            <h1 style="margin: 0; font-size: 1.5em;">Welcome, {{ user.username }}!</h1>
+        </div>
+    </div>
 
-    /* Container for the main content */
-    .container {
-        max-width: 800px;
-        margin: 50px auto;
-        padding: 20px;
-        background: #fff;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    h1 {
-        font-size: 2em;
-        margin-bottom: 10px;
-        color: #333;
-    }
-
-    h2 {
-        font-size: 1.5em;
-        margin-bottom: 20px;
-        color: #555;
-    }
-
-    ul {
-        list-style-type: none;
-        padding: 0;
-    }
-
-    li {
-        margin: 10px 0;
-        background: #f4f4f4;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        padding: 10px;
-        transition: transform 0.2s ease;
-    }
-
-    li:hover {
-        transform: scale(1.02);
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
-    a {
-        text-decoration: none;
-        color: #007bff;
-        font-weight: bold;
-    }
-
-    a:hover {
-        text-decoration: underline;
-        color: #0056b3;
-    }
-
-    p {
-        font-size: 1em;
-        color: #777;
-        margin-bottom: 20px;
-    }
-
-    .btn-create {
-        display: inline-block;
-        padding: 10px 20px;
-        font-size: 1em;
-        color: white;
-        background: #007bff;
-        border-radius: 5px;
-        text-decoration: none;
-        transition: background 0.3s ease;
-    }
-
-    .btn-create:hover {
-        background: #0056b3;
-    }
-</style>
-
-<div class="container">
-    <h1>Welcome {{ user.username }}!</h1>
-    <h2>Your Shared Carts:</h2>
+    <!-- Cart Preview Box -->
     {% if shared_carts %}
-        <ul>
+        <div style="background-color: #FFF9EF; color: #354EAD; padding: 10px 20px; border-radius: 5px; text-align: center;">
+            <a href="{% url 'shared_cart' shared_carts.0.id %}" style="text-decoration: none; color: #354EAD; font-weight: bold;">View Cart</a>
+        </div>
+    {% else %}
+        <p style="color: #FFF9EF; margin: 0;">No carts available to view.</p>
+    {% endif %}
+</header>
+
+<main style="padding: 40px 20px;">
+    <h2 style="color: #FFF9EF;">Your Shared Carts</h2>
+    {% if shared_carts %}
+        <ul style="list-style: none; padding: 0;">
             {% for cart in shared_carts %}
-                <li>
-                    <a href="{% url 'shared_cart' cart.id %}">{{ cart.name }}</a>
+                <li style="margin-bottom: 15px;">
+                    <a href="{% url 'shared_cart' cart.id %}" style="color: #FFF9EF; font-weight: bold; text-decoration: none;">{{ cart.name }}</a>
+                    <a href="{% url 'add_item' cart.id %}" style="text-decoration: none; background-color: #FFF9EF; color: #354EAD; padding: 5px 15px; border-radius: 5px; margin-left: 15px; font-weight: bold;">Add Items</a>
                 </li>
             {% endfor %}
         </ul>
     {% else %}
-        <p>You are not part of any shared carts.</p>
+        <p style="color: #FFF9EF;">You are not part of any shared carts.</p>
     {% endif %}
-    <a href="{% url 'create_cart' %}" class="btn-create">Create a New Shared Cart</a>
-</div>
+</main>
+
+<!-- Create Cart or Add Items Section -->
+{% if shared_carts %}
+    <section style="background-color: #FFF9EF; color: #354EAD; padding: 20px; border-radius: 10px; margin: 20px; text-align: center;">
+        <h2>Add Items to Your Cart</h2>
+        <p>Continue building your shared cart by adding more items.</p>
+        <a href="{% url 'add_item' shared_carts.0.id %}" style="text-decoration: none; background-color: #354EAD; color: #FFF9EF; padding: 10px 20px; border-radius: 5px; font-weight: bold;">Add Items</a>
+    </section>
+{% else %}
+    <section style="background-color: #FFF9EF; color: #354EAD; padding: 20px; border-radius: 10px; margin: 20px; text-align: center;">
+        <h2>Create a New Order</h2>
+        <p>Start a new shared cart for your group!</p>
+        <a href="{% url 'create_cart' %}" style="text-decoration: none; background-color: #354EAD; color: #FFF9EF; padding: 10px 20px; border-radius: 5px; font-weight: bold;">Create Order</a>
+    </section>
+{% endif %}
 {% endblock %}
