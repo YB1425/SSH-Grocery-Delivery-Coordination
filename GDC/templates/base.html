@@ -1,25 +1,170 @@
-<!-- main/templates/base.html -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grocery Coordination App</title>
+    <style>
+        /* General Reset and Body Styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* Navbar Styling */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 30px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .logo img {
+            height: 50px; /* Larger logo size for clarity */
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 20px; /* Space between links */
+        }
+
+        .nav-links a {
+            font-size: 16px;
+            color: #333;
+            font-weight: 600;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            background-color: #007bff;
+            color: #ffffff;
+        }
+
+        /* Dropdown Menu Styling */
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            z-index: 1000;
+        }
+
+        .dropdown-content a {
+            display: block;
+            padding: 10px 20px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #007bff;
+            color: #ffffff;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        /* Message Styling */
+        .message {
+            margin: 20px auto;
+            max-width: 800px;
+            padding: 10px 20px;
+            background-color: #e0ffe6; /* Light green for success messages */
+            border: 1px solid #6acc7d;
+            border-radius: 5px;
+            font-size: 1em;
+            color: #333;
+        }
+
+        /* Content Styling */
+        .content {
+            max-width: 900px;
+            margin: 100px auto;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
     <nav>
-        {% if user.is_authenticated %}
-            <a href="{% url 'home' %}">Home</a> |
-            <a href="{% url 'notifications' %}">Notifications</a> |
-            <a href="{% url 'logout' %}">Logout</a>
-        {% else %}
-            <a href="{% url 'login' %}">Login</a> |
-            <a href="{% url 'register' %}">Register</a>
-        {% endif %}
+        <div class="logo">
+            <a href="{% url 'home' %}">
+                <img src="https://i.imgur.com/ne6CXxW.png" alt="Logo">
+            </a>
+        </div>
+        <div class="nav-links">
+            {% if user.is_authenticated %}
+                <a href="{% url 'home' %}">Home</a>
+                <a href="{% url 'notifications' %}">Notifications</a>
+                <div class="dropdown">
+                    <a href="#">Account ▼</a>
+                    <div class="dropdown-content">
+                        <a href="{% url 'profile' %}">Profile</a>
+                        <a href="{% url 'logout' %}">Logout</a>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+                <a href="{% url 'register' %}">Register</a>
+            {% endif %}
+        </div>
     </nav>
+
     {% if messages %}
         {% for message in messages %}
             <div class="message">{{ message }}</div>
         {% endfor %}
     {% endif %}
-    {% block content %}{% endblock %}
+
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
 </body>
 </html>

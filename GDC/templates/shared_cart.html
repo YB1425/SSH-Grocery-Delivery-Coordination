@@ -1,29 +1,110 @@
-<!-- main/templates/shared_cart.html -->
 {% extends 'base.html' %}
+
 {% block content %}
-<h1>{{ cart.name }}</h1>
-<table>
-    <tr>
-        <th>Item</th>
-        <th>Quantity</th>
-        <th>Price</th>
-        <th>Added By</th>
-        <th>Actions</th>
-    </tr>
-    {% for item in items %}
-    <tr>
-        <td>{{ item.item.name }}</td>
-        <td>{{ item.quantity }}</td>
-        <td>{{ item.item.price }}</td>
-        <td>{{ item.added_by.username }}</td>
-        <td>
-            <a href="{% url 'modify_item' cart.id item.id %}">Modify</a>
-            <a href="{% url 'remove_item' cart.id item.id %}">Remove</a>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
-<p>Total Price: {{ total_price }}</p>
-<p>Your Share: {{ split_price }}</p>
-<a href="{% url 'add_item' cart.id %}">Add Item</a>
+<style>
+    /* General Container Style */
+    .container {
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 20px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+        font-size: 2em;
+        margin-bottom: 20px;
+        color: #333;
+        text-align: center;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+
+    th, td {
+        text-align: left;
+        padding: 10px;
+        border: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #f4f4f4;
+        font-weight: bold;
+        color: #555;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+
+    a {
+        text-decoration: none;
+        font-weight: bold;
+        color: #007bff;
+        padding: 5px 10px;
+        border: 1px solid #007bff;
+        border-radius: 5px;
+        transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    a:hover {
+        background: #007bff;
+        color: white;
+    }
+
+    p {
+        font-size: 1em;
+        color: #555;
+    }
+
+    .btn-add {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 10px 15px;
+        font-size: 1em;
+        color: white;
+        background: #28a745;
+        border: none;
+        border-radius: 5px;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .btn-add:hover {
+        background: #218838;
+    }
+</style>
+
+<div class="container">
+    <h1>{{ cart.name }}</h1>
+    <table>
+        <tr>
+            <th>Item</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Added By</th>
+            <th>Actions</th>
+        </tr>
+        {% for item in items %}
+        <tr>
+            <td>{{ item.item.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.item.price }}</td>
+            <td>{{ item.added_by.username }}</td>
+            <td>
+                <a href="{% url 'modify_item' cart.id item.id %}">Modify</a>
+                <a href="{% url 'remove_item' cart.id item.id %}">Remove</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <p><strong>Total Price:</strong> {{ total_price }}</p>
+    <p><strong>Your Share:</strong> {{ split_price }}</p>
+    <a href="{% url 'add_item' cart.id %}" class="btn-add">Add Item</a>
+</div>
 {% endblock %}

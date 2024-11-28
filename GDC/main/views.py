@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from .models import SharedCart, CartItem, GroceryItem, Notification
 from django.contrib import messages
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
@@ -150,3 +150,13 @@ def register(request):
     else:
         form = UserCreationForm()
     return render(request, 'registration/register.html', {'form': form})
+
+def profile(request):
+    return render(request, 'profile.html')
+
+def custom_logout(request):
+    if request.method == 'POST':  # Ensure security for logout
+        logout(request)  # Logs out the user
+        return render(request, 'logout.html')  # Render goodbye message
+    elif request.method == 'GET':  # Redirect to a safe URL for unsupported methods
+        return redirect('home')

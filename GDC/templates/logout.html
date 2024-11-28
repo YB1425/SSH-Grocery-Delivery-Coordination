@@ -10,58 +10,62 @@
         background: #fff;
         border-radius: 8px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    h1 {
-        font-size: 1.8em;
-        margin-bottom: 20px;
-        color: #333;
         text-align: center;
     }
 
-    form {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
+    h1 {
+        font-size: 2em;
+        margin-bottom: 20px;
+        color: #333;
     }
 
-    label {
+    p {
         font-size: 1em;
         color: #555;
+        margin-bottom: 20px;
     }
 
-    input[type="number"] {
-        padding: 10px;
-        font-size: 1em;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        width: 100%;
-        box-sizing: border-box;
+    .btn-container {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
     }
 
-    button {
+    .btn {
+        display: inline-block;
         padding: 10px 15px;
         font-size: 1em;
         color: white;
         background: #007bff;
         border: none;
         border-radius: 5px;
+        text-decoration: none;
         cursor: pointer;
         transition: background 0.3s ease;
     }
 
-    button:hover {
+    .btn:hover {
         background: #0056b3;
+    }
+
+    .btn-cancel {
+        background: #dc3545;
+    }
+
+    .btn-cancel:hover {
+        background: #c82333;
     }
 </style>
 
 <div class="container">
-    <h1>Modify {{ cart_item.item.name }} in {{ cart.name }}</h1>
-    <form method="post">
-        {% csrf_token %}
-        <label for="quantity">Quantity:</label>
-        <input type="number" name="quantity" value="{{ cart_item.quantity }}" min="1">
-        <button type="submit">Update Item</button>
-    </form>
+    <h1>Logout</h1>
+    <p>Are you sure you want to log out?</p>
+    <div class="btn-container">
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn">Yes, Logout</button>
+        </form>
+        <a href="{% url 'home' %}" class="btn btn-cancel">Cancel</a>
+    </div>
 </div>
 {% endblock %}
