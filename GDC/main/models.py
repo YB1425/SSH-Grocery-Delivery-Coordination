@@ -21,14 +21,32 @@ class SharedCart(models.Model):
         return total / num_users if num_users else 0
 
 class GroceryItem(models.Model):
+    CATEGORY_CHOICES = [
+        ("Fruits", "Fruits"),
+        ("Vegetables", "Vegetables"),
+        ("Dairy", "Dairy"),
+        ("Bakery", "Bakery"),
+        ("Meat", "Meat"),
+        ("Beverages", "Beverages"),
+        ("Snacks", "Snacks"),
+        ("Frozen Foods", "Frozen Foods"),
+        ("Household Items", "Household Items"),
+    ]
+
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
     availability = models.BooleanField(default=True)
+    category = models.CharField(
+        max_length=50,
+        choices=CATEGORY_CHOICES,
+        default="N/A",  # Default category
+    )
 
     def __str__(self):
         return self.name
 
+    
 class CartItem(models.Model):
     cart = models.ForeignKey(SharedCart, on_delete=models.CASCADE, related_name='items')
     item = models.ForeignKey(GroceryItem, on_delete=models.CASCADE)
