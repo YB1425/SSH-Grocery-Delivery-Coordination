@@ -1,13 +1,44 @@
-<!-- main/templates/add_item.html -->
 {% extends 'base.html' %}
 {% block content %}
 <h1>Add Item to {{ cart.name }}</h1>
-<form method="post">
-    {% csrf_token %}
-    <label for="item_name">Item Name:</label>
-    <input type="text" name="item_name" required>
-    <label for="quantity">Quantity:</label>
-    <input type="number" name="quantity" value="1" min="1">
-    <button type="submit">Add Item</button>
-</form>
+
+<h2>Available Items:</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Item Name</th>
+            <th>Price</th>
+            <th>Availability</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in available_items %}
+        <tr>
+            <td>{{ item.name }}</td>
+            <td>{{ item.price }}</td>
+            <td>
+                {% if item.availability %}
+                    Available
+                {% else %}
+                    Out of Stock
+                {% endif %}
+            </td>
+            <td>
+                {% if item.availability %}
+                <form method="post" action="{% url 'add_item' cart.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="item_id" value="{{ item.id }}">
+                    <label for="quantity">Quantity:</label>
+                    <input type="number" name="quantity" value="1" min="1">
+                    <button type="submit">Add to Cart</button>
+                </form>
+                {% else %}
+                <p>Out of Stock</p>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 {% endblock %}

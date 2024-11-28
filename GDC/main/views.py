@@ -28,33 +28,40 @@ def shared_cart_view(request, cart_id):
     }
     return render(request, 'shared_cart.html', context)
 
+
 @login_required
 def add_item(request, cart_id):
     cart = get_object_or_404(SharedCart, id=cart_id, users=request.user)
+    available_items = GroceryItem.objects.all()  # Fetch all grocery items
+
     if request.method == 'POST':
-        item_name = request.POST.get('item_name')
+        item_id = request.POST.get('item_id')
         quantity = int(request.POST.get('quantity', 1))
-        grocery_item, created = GroceryItem.objects.get_or_create(name=item_name)
-        price, availability = update_item_price_and_availability(item_name)
-        grocery_item.price = price
-        grocery_item.availability = availability
-        grocery_item.save()
+        grocery_item = get_object_or_404(GroceryItem, id=item_id)
+
+        # Add the item to the cart
         CartItem.objects.create(
             cart=cart,
             item=grocery_item,
             quantity=quantity,
             added_by=request.user
         )
-        # Notify other users
+
+        # Notify other users in the cart
         other_users = cart.users.exclude(id=request.user.id)
         for user in other_users:
             Notification.objects.create(
                 user=user,
-                message=f"{request.user.username} added {quantity} x {item_name} to {cart.name}"
+                message=f"{request.user.username} added {quantity} x {grocery_item.name} to {cart.name}"
             )
-        messages.success(request, 'Item added successfully.')
+
+        messages.success(request, f'Item "{grocery_item.name}" added successfully.')
         return redirect('shared_cart', cart_id=cart.id)
-    return render(request, 'add_item.html', {'cart': cart})
+
+    return render(request, 'add_item.html', {'cart': cart, 'available_items': available_items})
+
+
+
 
 @login_required
 def remove_item(request, cart_id, item_id):
