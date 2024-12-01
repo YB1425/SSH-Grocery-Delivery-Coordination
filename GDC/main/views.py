@@ -17,22 +17,33 @@ def update_item_price_and_availability(item_name):
 @login_required
 def shared_cart_view(request, cart_id):
     cart = get_object_or_404(SharedCart, id=cart_id, users=request.user)
+    search_query = request.GET.get('q', '')  # Get the search query
     items = cart.items.select_related('item').all()
+
+    if search_query:  # Filter items if a search query is provided
+        items = items.filter(item__name__icontains=search_query)
+
     total_price = cart.total_cost()
     split_price = cart.split_cost()
     context = {
         'cart': cart,
         'items': items,
         'total_price': total_price,
-        'split_price': split_price
+        'split_price': split_price,
+        'search_query': search_query,
     }
     return render(request, 'shared_cart.html', context)
+
 
 
 @login_required
 def add_item(request, cart_id):
     cart = get_object_or_404(SharedCart, id=cart_id, users=request.user)
-    available_items = GroceryItem.objects.all()  # Fetch all grocery items
+    search_query = request.GET.get('q', '')  # Capture the search query
+    available_items = GroceryItem.objects.filter(availability=True)  # Only available items
+
+    if search_query:  # Filter items based on the search query
+        available_items = available_items.filter(name__icontains=search_query)
 
     if request.method == 'POST':
         item_id = request.POST.get('item_id')
@@ -47,7 +58,7 @@ def add_item(request, cart_id):
             added_by=request.user
         )
 
-        # Notify other users in the cart
+        # Notify other users
         other_users = cart.users.exclude(id=request.user.id)
         for user in other_users:
             Notification.objects.create(
@@ -56,10 +67,9 @@ def add_item(request, cart_id):
             )
 
         messages.success(request, f'Item "{grocery_item.name}" added successfully.')
-        return redirect('shared_cart', cart_id=cart.id)
+        return redirect('add_item', cart_id=cart.id)
 
     return render(request, 'add_item.html', {'cart': cart, 'available_items': available_items})
-
 
 
 

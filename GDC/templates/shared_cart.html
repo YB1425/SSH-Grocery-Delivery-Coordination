@@ -82,7 +82,13 @@
 
 <div class="container">
     <h1>{{ cart.name }}</h1>
-    <table>
+    <input
+        type="text"
+        id="searchBar"
+        placeholder="Search items..."
+        style="width: 100%; padding: 10px; margin-bottom: 20px;"
+    />
+    <table id="itemsTable">
         <tr>
             <th>Item</th>
             <th>Quantity</th>
@@ -107,4 +113,15 @@
     <p><strong>Your Share:</strong> {{ split_price }}</p>
     <a href="{% url 'add_item' cart.id %}" class="btn-add">Add Item</a>
 </div>
+
+<script>
+    document.getElementById("searchBar").addEventListener("input", function () {
+        const filter = this.value.toLowerCase();
+        const rows = document.querySelectorAll("#itemsTable tr:not(:first-child)");
+        rows.forEach(row => {
+            const itemName = row.cells[0].textContent.toLowerCase();
+            row.style.display = itemName.includes(filter) ? "" : "none";
+        });
+    });
+</script>
 {% endblock %}
