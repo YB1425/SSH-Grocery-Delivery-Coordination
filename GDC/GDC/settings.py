@@ -73,7 +73,7 @@ ROOT_URLCONF = 'GDC.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],  # BASE_DIR + templates folder
+        'DIRS': [BASE_DIR / 'templates'], 
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

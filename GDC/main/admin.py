@@ -1,10 +1,7 @@
 # main/admin.py
 from django.contrib import admin
-from .models import UserActionHistory
-from .models import (
-    SharedCart, GroceryItem, CartItem, Notification,
-    PurchaseHistory, PaymentInfo
-)
+from .models import *
+
 
 @admin.register(UserActionHistory)
 class UserActionHistoryAdmin(admin.ModelAdmin):
