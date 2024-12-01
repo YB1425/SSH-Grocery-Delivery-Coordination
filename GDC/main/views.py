@@ -135,9 +135,9 @@ def modify_item(request, cart_id, item_id):
         return redirect('shared_cart', cart_id=cart.id)
     return render(request, 'modify_item.html', {'cart': cart, 'cart_item': cart_item})
 
-@login_required
 def notifications_view(request):
-    notifications = request.user.notifications.filter(is_read=False)
+    # Fetching unread notifications in descending order based on the 'created_at' timestamp
+    notifications = request.user.notifications.filter(is_read=False).order_by('-created_at')
     context = {'notifications': notifications}
     return render(request, 'notifications.html', context)
 
