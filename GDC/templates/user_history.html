@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Action History</h1>
+    <table>
+        <tr>
+            <th>Timestamp</th>
+            <th>Action</th>
+            <th>Item</th>
+            <th>Cart</th>
+            <th>Details</th>
+        </tr>
+        {% for action in history %}
+        <tr>
+            <td>{{ action.timestamp }}</td>
+            <td>{{ action.get_action_type_display }}</td>
+            <td>{{ action.item.name if action.item }}</td>
+            <td>{{ action.cart.name if action.cart }}</td>
+            <td>{{ action.details }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

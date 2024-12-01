@@ -72,3 +72,23 @@ class PurchaseHistory(models.Model):
 class PaymentInfo(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     # Add secure fields for payment information
+
+
+class UserActionHistory(models.Model):
+    ACTION_TYPES = [
+        ("ADD", "Add Item"),
+        ("REMOVE", "Remove Item"),
+        ("MODIFY", "Modify Item"),
+        ("VIEW", "View Cart"),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="action_history")
+    cart = models.ForeignKey(SharedCart, on_delete=models.CASCADE, null=True, blank=True)
+    item = models.ForeignKey(GroceryItem, on_delete=models.SET_NULL, null=True, blank=True)
+    action_type = models.CharField(max_length=10, choices=ACTION_TYPES)
+    quantity = models.PositiveIntegerField(null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    details = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.action_type} - {self.timestamp}"
