@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
+from .models import UserActionHistory
 
 def update_item_price_and_availability(item_name):
     # Placeholder for supermarket API integration
@@ -51,11 +52,21 @@ def add_item(request, cart_id):
         grocery_item = get_object_or_404(GroceryItem, id=item_id)
 
         # Add the item to the cart
-        CartItem.objects.create(
+        cart_item = CartItem.objects.create(
             cart=cart,
             item=grocery_item,
             quantity=quantity,
             added_by=request.user
+        )
+
+        # Log the action in UserActionHistory
+        UserActionHistory.objects.create(
+            user=request.user,
+            cart=cart,
+            item=grocery_item,
+            action_type="ADD",
+            quantity=quantity,
+            details=f"Added {quantity} of {grocery_item.name} to cart {cart.name}."
         )
 
         # Notify other users
@@ -73,13 +84,25 @@ def add_item(request, cart_id):
 
 
 
+
 @login_required
 def remove_item(request, cart_id, item_id):
     cart = get_object_or_404(SharedCart, id=cart_id, users=request.user)
     cart_item = get_object_or_404(CartItem, id=item_id, cart=cart)
     if request.method == 'POST':
         item_name = cart_item.item.name
+        quantity = cart_item.quantity  # Use cart_item's quantity
         cart_item.delete()
+
+        UserActionHistory.objects.create(
+            user=request.user,
+            cart=cart,
+            item=cart_item.item,
+            action_type="REMOVE",
+            quantity=quantity,
+            details=f"Removed {quantity} of {item_name} from cart {cart.name}."
+        )
+
         # Notify other users
         other_users = cart.users.exclude(id=request.user.id)
         for user in other_users:
@@ -90,6 +113,7 @@ def remove_item(request, cart_id, item_id):
         messages.success(request, 'Item removed successfully.')
         return redirect('shared_cart', cart_id=cart.id)
     return render(request, 'remove_item.html', {'cart': cart, 'cart_item': cart_item})
+
 
 @login_required
 def modify_item(request, cart_id, item_id):
@@ -170,3 +194,14 @@ def custom_logout(request):
         return render(request, 'logout.html')  # Render goodbye message
     elif request.method == 'GET':  # Redirect to a safe URL for unsupported methods
         return redirect('home')
+    
+@login_required
+def user_history(request):
+    history = request.user.action_history.select_related("cart", "item").order_by("-timestamp")
+    return render(request, 'user_history.html', {'history': history})
+
+def get_frequent_items(user):
+    from django.db.models import Count
+    return UserActionHistory.objects.filter(user=user, action_type="ADD").values(
+        "item__name"
+    ).annotate(total=Count("id")).order_by("-total")[:5]
