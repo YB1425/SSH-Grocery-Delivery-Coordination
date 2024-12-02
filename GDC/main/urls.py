@@ -1,8 +1,5 @@
-# main/urls.py
-
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from django.contrib.auth.views import LogoutView
 from . import views
 
 urlpatterns = [
@@ -13,12 +10,10 @@ urlpatterns = [
     path('cart/<int:cart_id>/modify/<int:item_id>/', views.modify_item, name='modify_item'),
     path('notifications/', views.notifications_view, name='notifications'),
     path('notifications/read/<int:notification_id>/', views.mark_notification_read, name='mark_notification_read'),
-    path('', views.home, name='home'),
     path('create_cart/', views.create_cart, name='create_cart'),  
     path('register/', views.register, name='register'),
     path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('logout/', auth_views.LogoutView.as_view(template_name='registration/logout.html'), name='logout'),
     path('profile/', views.profile, name='profile'),
-    path('logout/', views.custom_logout, name='logout'),
     path('history/', views.user_history, name='user_history'),
 ]

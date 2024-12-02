@@ -40,8 +40,19 @@
             z-index: 1000;
         }
 
+        .logo a {
+            display: inline-block;
+            width: auto; /* Match the image dimensions */
+            height: auto;
+            padding: 0; /* Remove any extra padding */
+            border: none; /* Ensure no border is displayed */
+            background: none; /* Ensure no background is displayed */
+        }
+
         .logo img {
             height: 75px;
+            display: block; /* Prevent extra space below the image */
+            margin: 0; /* Remove any extra margin */
             border: none;
         }
 
@@ -93,6 +104,25 @@
 
         .dropdown:hover .dropdown-content {
             display: block;
+        }
+
+        /* Logout Button Styling */
+        .btn-logout {
+            background: none;
+            border: none;
+            color: #333;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 14px;
+            width: 100%;
+        }
+
+        .btn-logout:hover {
+            background-color: #007bff;
+            color: #ffffff;
         }
 
         /* Ensures all links do not show an outline when focused */
@@ -151,7 +181,10 @@
                     <a href="#">Account ▼</a>
                     <div class="dropdown-content">
                         <a href="{% url 'profile' %}">Profile</a>
-                        <a href="{% url 'logout' %}">Logout</a>
+                        <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-logout">Logout</button>
+                        </form>
                     </div>
                 </div>
             {% else %}
