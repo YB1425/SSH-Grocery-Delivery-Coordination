@@ -5,11 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grocery Coordination App</title>
     <style>
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            outline: none; 
+            outline: none;
+        }
+
+        a:focus {
+            outline: none !important;
         }
 
         body {
@@ -39,6 +44,7 @@
             z-index: 1000;
         }
 
+        /* Apply old styling to .logo a */
         .logo a {
             display: inline-block;
             width: auto; 
@@ -69,7 +75,7 @@
             border-radius: 5px;
             transition: all 0.3s ease;
             background-color: transparent;
-            border: none; 
+            border: none;
         }
 
         .nav-links a:hover, .dropdown-content a:hover {
@@ -124,14 +130,11 @@
             color: #ffffff;
         }
 
-        /* Ensures links don't show an outline when focused */
-        a:focus {
-            outline: none !important;
-        }
-
         /* Message Styling */
         .message {
-            margin: 20px auto;
+            position: relative;
+            z-index: 9999;
+            margin: 120px auto 20px auto;
             max-width: 800px;
             padding: 10px 20px;
             background-color: #e0ffe6; 
@@ -144,7 +147,7 @@
         /* Content Styling */
         .content {
             max-width: 900px;
-            margin: 100px auto;
+            margin: 150px auto 50px auto;
             padding: 20px;
             background: #ffffff;
             border-radius: 8px;

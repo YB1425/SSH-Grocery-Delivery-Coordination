@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-
 {% block content %}
 <style>
     .container {
@@ -108,8 +107,9 @@
         </tr>
         {% endfor %}
     </table>
-    <p><strong>Total Price:</strong> {{ total_price }}</p>
-    <p><strong>Your Share:</strong> {{ split_price }}</p>
+    <p><strong>Total cost for all items:</strong> {{ total_price }}</p>
+    <p><strong>Your share of shared items:</strong> {{ split_price }}</p>
+    <p><strong>Your personal items cost:</strong> {{ personal_cost }}</p>
     <a href="{% url 'add_item' cart.id %}" class="btn-add">Add Item</a>
 </div>
 

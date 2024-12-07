@@ -8,14 +8,17 @@ class SharedCart(models.Model):
     def __str__(self):
         return self.name
 
+    def total_shared_cost(self):
+        return sum(i.quantity * (i.item.price or 0) for i in self.items.filter(is_shared=True))
+
+    def total_personal_cost(self, user):
+        return sum(i.quantity * (i.item.price or 0) for i in self.items.filter(is_shared=False, added_by=user))
+
     def total_cost(self):
-        total = sum(
-            item.quantity * (item.item.price or 0) for item in self.items.all()
-        )
-        return total
+        return sum(i.quantity * (i.item.price or 0) for i in self.items.all())
 
     def split_cost(self):
-        total = self.total_cost()
+        total = self.total_shared_cost()
         num_users = self.users.count()
         return total / num_users if num_users else 0
 
@@ -39,13 +42,12 @@ class GroceryItem(models.Model):
     category = models.CharField(
         max_length=50,
         choices=CATEGORY_CHOICES,
-        default="N/A",  # Default category
+        default="N/A",
     )
 
     def __str__(self):
         return self.name
 
-    
 class CartItem(models.Model):
     cart = models.ForeignKey(SharedCart, on_delete=models.CASCADE, related_name='items')
     item = models.ForeignKey(GroceryItem, on_delete=models.CASCADE)
@@ -53,6 +55,7 @@ class CartItem(models.Model):
     added_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     added_at = models.DateTimeField(auto_now_add=True)
     is_purchased = models.BooleanField(default=False)
+    is_shared = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.quantity} x {self.item.name} in {self.cart.name}"
@@ -70,8 +73,6 @@ class PurchaseHistory(models.Model):
 
 class PaymentInfo(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    # Add secure fields for payment information
-
 
 class UserActionHistory(models.Model):
     ACTION_TYPES = [
