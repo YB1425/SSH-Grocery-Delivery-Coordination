@@ -1,4 +1,3 @@
-# main/views.py
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from .models import SharedCart, CartItem, GroceryItem, Notification
@@ -9,7 +8,6 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import UserActionHistory
 
 def update_item_price_and_availability(item_name):
-    # Placeholder for supermarket API integration
     import random
     price = round(random.uniform(1.0, 10.0), 2)
     availability = random.choice([True, False])
@@ -18,10 +16,10 @@ def update_item_price_and_availability(item_name):
 @login_required
 def shared_cart_view(request, cart_id):
     cart = get_object_or_404(SharedCart, id=cart_id, users=request.user)
-    search_query = request.GET.get('q', '')  # Get the search query
+    search_query = request.GET.get('q', '') 
     items = cart.items.select_related('item').all()
 
-    if search_query:  # Filter items if a search query is provided
+    if search_query: 
         items = items.filter(item__name__icontains=search_query)
 
     total_price = cart.total_cost()
@@ -40,10 +38,9 @@ def shared_cart_view(request, cart_id):
 @login_required
 def add_item(request, cart_id):
     cart = get_object_or_404(SharedCart, id=cart_id, users=request.user)
-    search_query = request.GET.get('q', '')  # Capture the search query
-    available_items = GroceryItem.objects.filter(availability=True)  # Only available items
-
-    if search_query:  # Filter items based on the search query
+    search_query = request.GET.get('q', '')  
+    available_items = GroceryItem.objects.filter(availability=True) 
+    if search_query:  
         available_items = available_items.filter(name__icontains=search_query)
 
     if request.method == 'POST':
@@ -51,7 +48,7 @@ def add_item(request, cart_id):
         quantity = int(request.POST.get('quantity', 1))
         grocery_item = get_object_or_404(GroceryItem, id=item_id)
 
-        # Add the item to the cart
+        # Adding item to cart
         cart_item = CartItem.objects.create(
             cart=cart,
             item=grocery_item,
@@ -59,7 +56,7 @@ def add_item(request, cart_id):
             added_by=request.user
         )
 
-        # Log the action in UserActionHistory
+        # Logging History
         UserActionHistory.objects.create(
             user=request.user,
             cart=cart,
@@ -69,7 +66,7 @@ def add_item(request, cart_id):
             details=f"Added {quantity} of {grocery_item.name} to cart {cart.name}."
         )
 
-        # Notify other users
+        # Notifying users
         other_users = cart.users.exclude(id=request.user.id)
         for user in other_users:
             Notification.objects.create(
@@ -91,7 +88,7 @@ def remove_item(request, cart_id, item_id):
     cart_item = get_object_or_404(CartItem, id=item_id, cart=cart)
     if request.method == 'POST':
         item_name = cart_item.item.name
-        quantity = cart_item.quantity  # Use cart_item's quantity
+        quantity = cart_item.quantity  
         cart_item.delete()
 
         UserActionHistory.objects.create(
@@ -136,7 +133,6 @@ def modify_item(request, cart_id, item_id):
     return render(request, 'modify_item.html', {'cart': cart, 'cart_item': cart_item})
 
 def notifications_view(request):
-    # Fetching unread notifications in descending order based on the 'created_at' timestamp
     notifications = request.user.notifications.filter(is_read=False).order_by('-created_at')
     context = {'notifications': notifications}
     return render(request, 'notifications.html', context)
@@ -150,7 +146,6 @@ def mark_notification_read(request, notification_id):
 
 @login_required
 def home(request):
-    # Get all shared carts the user is part of
     shared_carts = request.user.shared_carts.all()
     context = {
         'shared_carts': shared_carts,
@@ -175,10 +170,9 @@ def register(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            # Log the user in after successful registration
             login(request, user)
             messages.success(request, 'Registration successful.')
-            return redirect('home')  # Redirect to the home page
+            return redirect('home') 
         else:
             messages.error(request, 'Registration failed. Please correct the errors below.')
     else:
@@ -189,10 +183,10 @@ def profile(request):
     return render(request, 'profile.html')
 
 def custom_logout(request):
-    if request.method == 'POST':  # Ensure security for logout
-        logout(request)  # Logs out the user
-        return render(request, 'logout.html')  # Render goodbye message
-    elif request.method == 'GET':  # Redirect to a safe URL for unsupported methods
+    if request.method == 'POST': 
+        logout(request)  
+        return render(request, 'logout.html') 
+    elif request.method == 'GET': 
         return redirect('home')
     
 @login_required
