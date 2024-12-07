@@ -1,11 +1,10 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from .models import SharedCart, CartItem, GroceryItem, Notification
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import UserActionHistory
+from .models import SharedCart, CartItem, GroceryItem, UserActionHistory, Notification
 
 def update_item_price_and_availability(item_name):
     import random
@@ -16,71 +15,23 @@ def update_item_price_and_availability(item_name):
 @login_required
 def shared_cart_view(request, cart_id):
     cart = get_object_or_404(SharedCart, id=cart_id, users=request.user)
-    search_query = request.GET.get('q', '') 
+    search_query = request.GET.get('q', '')
     items = cart.items.select_related('item').all()
-
-    if search_query: 
+    if search_query:
         items = items.filter(item__name__icontains=search_query)
 
     total_price = cart.total_cost()
     split_price = cart.split_cost()
+    personal_cost = cart.total_personal_cost(request.user)
     context = {
         'cart': cart,
         'items': items,
         'total_price': total_price,
         'split_price': split_price,
+        'personal_cost': personal_cost,
         'search_query': search_query,
     }
     return render(request, 'shared_cart.html', context)
-
-
-
-@login_required
-def add_item(request, cart_id):
-    cart = get_object_or_404(SharedCart, id=cart_id, users=request.user)
-    search_query = request.GET.get('q', '')  
-    available_items = GroceryItem.objects.filter(availability=True) 
-    if search_query:  
-        available_items = available_items.filter(name__icontains=search_query)
-
-    if request.method == 'POST':
-        item_id = request.POST.get('item_id')
-        quantity = int(request.POST.get('quantity', 1))
-        grocery_item = get_object_or_404(GroceryItem, id=item_id)
-
-        # Adding item to cart
-        cart_item = CartItem.objects.create(
-            cart=cart,
-            item=grocery_item,
-            quantity=quantity,
-            added_by=request.user
-        )
-
-        # Logging History
-        UserActionHistory.objects.create(
-            user=request.user,
-            cart=cart,
-            item=grocery_item,
-            action_type="ADD",
-            quantity=quantity,
-            details=f"Added {quantity} of {grocery_item.name} to cart {cart.name}."
-        )
-
-        # Notifying users
-        other_users = cart.users.exclude(id=request.user.id)
-        for user in other_users:
-            Notification.objects.create(
-                user=user,
-                message=f"{request.user.username} added {quantity} x {grocery_item.name} to {cart.name}"
-            )
-
-        messages.success(request, f'Item "{grocery_item.name}" added successfully.')
-        return redirect('add_item', cart_id=cart.id)
-
-    return render(request, 'add_item.html', {'cart': cart, 'available_items': available_items})
-
-
-
 
 @login_required
 def remove_item(request, cart_id, item_id):
@@ -88,7 +39,7 @@ def remove_item(request, cart_id, item_id):
     cart_item = get_object_or_404(CartItem, id=item_id, cart=cart)
     if request.method == 'POST':
         item_name = cart_item.item.name
-        quantity = cart_item.quantity  
+        quantity = cart_item.quantity
         cart_item.delete()
 
         UserActionHistory.objects.create(
@@ -107,10 +58,10 @@ def remove_item(request, cart_id, item_id):
                 user=user,
                 message=f"{request.user.username} removed {item_name} from {cart.name}"
             )
+
         messages.success(request, 'Item removed successfully.')
         return redirect('shared_cart', cart_id=cart.id)
     return render(request, 'remove_item.html', {'cart': cart, 'cart_item': cart_item})
-
 
 @login_required
 def modify_item(request, cart_id, item_id):
@@ -120,18 +71,29 @@ def modify_item(request, cart_id, item_id):
         quantity = int(request.POST.get('quantity', cart_item.quantity))
         cart_item.quantity = quantity
         cart_item.save()
+
+        UserActionHistory.objects.create(
+            user=request.user,
+            cart=cart,
+            item=cart_item.item,
+            action_type="MODIFY",
+            quantity=quantity,
+            details=f"Modified {cart_item.item.name} quantity to {quantity} in cart {cart.name}."
+        )
+
         # Notify other users
-        item_name = cart_item.item.name
         other_users = cart.users.exclude(id=request.user.id)
         for user in other_users:
             Notification.objects.create(
                 user=user,
-                message=f"{request.user.username} updated {item_name} quantity to {quantity} in {cart.name}"
+                message=f"{request.user.username} updated {cart_item.item.name} quantity to {quantity} in {cart.name}"
             )
+
         messages.success(request, 'Item updated successfully.')
         return redirect('shared_cart', cart_id=cart.id)
     return render(request, 'modify_item.html', {'cart': cart, 'cart_item': cart_item})
 
+@login_required
 def notifications_view(request):
     notifications = request.user.notifications.filter(is_read=False).order_by('-created_at')
     context = {'notifications': notifications}
@@ -172,7 +134,7 @@ def register(request):
             user = form.save()
             login(request, user)
             messages.success(request, 'Registration successful.')
-            return redirect('home') 
+            return redirect('home')
         else:
             messages.error(request, 'Registration failed. Please correct the errors below.')
     else:
@@ -183,19 +145,60 @@ def profile(request):
     return render(request, 'profile.html')
 
 def custom_logout(request):
-    if request.method == 'POST': 
-        logout(request)  
-        return render(request, 'logout.html') 
-    elif request.method == 'GET': 
+    if request.method == 'POST':
+        logout(request)
+        return render(request, 'logout.html')
+    elif request.method == 'GET':
         return redirect('home')
-    
+
 @login_required
 def user_history(request):
     history = request.user.action_history.select_related("cart", "item").order_by("-timestamp")
     return render(request, 'user_history.html', {'history': history})
 
-def get_frequent_items(user):
-    from django.db.models import Count
-    return UserActionHistory.objects.filter(user=user, action_type="ADD").values(
-        "item__name"
-    ).annotate(total=Count("id")).order_by("-total")[:5]
+@login_required
+def add_item(request, cart_id):
+    cart = get_object_or_404(SharedCart, id=cart_id, users=request.user)
+    search_query = request.GET.get('q', '').strip()
+    sort_option = request.GET.get('sort', '').strip()  # 'asc' or 'desc'
+
+    # Base queryset
+    available_items = GroceryItem.objects.filter(availability=True)
+    unique_names = set()
+    unique_items = []
+    for item in available_items:
+        if item.name not in unique_names:
+            unique_items.append(item)
+            unique_names.add(item.name)
+    # unique_items now has no duplicates based on name
+
+    if request.method == 'POST':
+        item_id = request.POST.get('item_id')
+        quantity = int(request.POST.get('quantity', 1))
+        is_shared = request.POST.get('is_shared') == 'on'
+        grocery_item = get_object_or_404(GroceryItem, id=item_id)
+
+        CartItem.objects.create(
+            cart=cart,
+            item=grocery_item,
+            quantity=quantity,
+            added_by=request.user,
+            is_shared=is_shared
+        )
+        UserActionHistory.objects.create(
+            user=request.user,
+            cart=cart,
+            item=grocery_item,
+            action_type="ADD",
+            quantity=quantity,
+            details=f"Added {quantity} of {grocery_item.name} to cart {cart.name}."
+        )
+        messages.success(request, f'Item "{grocery_item.name}" added successfully.')
+        return redirect('add_item', cart_id=cart.id)
+
+    return render(request, 'add_item.html', {
+        'cart': cart,
+        'available_items': unique_items,
+        'search_query': search_query,
+        'sort_option': sort_option
+    })

@@ -11,6 +11,5 @@ class UserActionHistoryAdmin(admin.ModelAdmin):
 admin.site.register(SharedCart)
 admin.site.register(GroceryItem)
 admin.site.register(CartItem)
-admin.site.register(Notification)
 admin.site.register(PurchaseHistory)
 admin.site.register(PaymentInfo)

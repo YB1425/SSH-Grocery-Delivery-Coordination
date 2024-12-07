@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-
 {% block content %}
 <style>
     .container {
@@ -82,10 +81,29 @@
         font-size: 0.9em;
         color: #777;
     }
+
+    .back-btn {
+        display: inline-block;
+        margin-bottom: 20px;
+        padding: 8px 15px;
+        font-size: 1em;
+        color: #ffffff;
+        background: #007bff;
+        border: none;
+        border-radius: 5px;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .back-btn:hover {
+        background: #0056b3;
+    }
 </style>
 
 <div class="container">
     <h1>Add Item to {{ cart.name }}</h1>
+    <a href="{% url 'shared_cart' cart.id %}" class="back-btn">Back to Cart</a>
     <input
         type="text"
         id="searchAvailableItems"
@@ -96,6 +114,7 @@
         <tr>
             <th>Item</th>
             <th>Description</th>
+            <th>Category</th>
             <th>Price</th>
             <th>Actions</th>
         </tr>
@@ -103,12 +122,16 @@
         <tr>
             <td>{{ item.name }}</td>
             <td>{{ item.description }}</td>
+            <td>{{ item.category }}</td>
             <td>{{ item.price }}</td>
             <td>
                 <form method="POST" action="{% url 'add_item' cart.id %}">
                     {% csrf_token %}
                     <input type="hidden" name="item_id" value="{{ item.id }}">
                     <input type="number" name="quantity" value="1" min="1" style="width: 50px;">
+                    <label style="margin-left:10px;">
+                        <input type="checkbox" name="is_shared" checked> Shared?
+                    </label>
                     <button type="submit">Add</button>
                 </form>
             </td>
@@ -127,5 +150,4 @@
         });
     });
 </script>
-
 {% endblock %}
