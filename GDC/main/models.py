@@ -22,6 +22,8 @@ class SharedCart(models.Model):
         num_users = self.users.count()
         return total / num_users if num_users else 0
 
+from django.db import models
+
 class GroceryItem(models.Model):
     CATEGORY_CHOICES = [
         ("Fruits", "Fruits"),
@@ -35,7 +37,7 @@ class GroceryItem(models.Model):
         ("Household Items", "Household Items"),
     ]
 
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, null=False, blank=False)
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
     availability = models.BooleanField(default=True)
@@ -45,8 +47,14 @@ class GroceryItem(models.Model):
         default="N/A",
     )
 
+    def save(self, *args, **kwargs):
+        if self.price is not None and self.price < 0:
+            raise ValueError("Price must be non-negative.")
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.name
+
 
 class CartItem(models.Model):
     cart = models.ForeignKey(SharedCart, on_delete=models.CASCADE, related_name='items')
