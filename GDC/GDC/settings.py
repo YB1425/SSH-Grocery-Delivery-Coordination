@@ -42,6 +42,7 @@ MESSAGE_TAGS = {
 
 
 # Redirect URLs after login/logout
+LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'login'
 
