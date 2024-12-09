@@ -1,9 +1,7 @@
 name: Django CI
 
 on:
-  push:
-    branches-ignore:
-      - main
+  push: 
   pull_request:
     branches:
       - main
@@ -28,8 +26,10 @@ jobs:
 
     - name: Run migrations
       run: |
+        cd GDC  
         python manage.py migrate
 
     - name: Run tests
       run: |
+        cd GDC  
         pytest
