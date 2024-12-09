@@ -1,7 +1,7 @@
 name: Django CI
 
 on:
-  push: 
+  push:
   pull_request:
     branches:
       - main
@@ -9,6 +9,21 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: mydatabase
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U user"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
 
     steps:
     - name: Checkout code
@@ -24,12 +39,29 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
+    - name: Wait for PostgreSQL to be ready
+      run: |
+        until pg_isready -h localhost -U user; do
+          echo "Waiting for PostgreSQL to be ready..."
+          sleep 1
+        done
+
     - name: Run migrations
+      env:
+        DB_HOST: localhost
+        DB_NAME: mydatabase
+        DB_USER: user
+        DB_PASSWORD: password
       run: |
         cd GDC  
         python manage.py migrate
 
     - name: Run tests
+      env:
+        DB_HOST: localhost
+        DB_NAME: mydatabase
+        DB_USER: user
+        DB_PASSWORD: password
       run: |
         cd GDC  
         pytest
