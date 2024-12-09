@@ -1,5 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.forms import ValidationError
+from decimal import Decimal, ROUND_HALF_UP
+
 
 class SharedCart(models.Model):
     name = models.CharField(max_length=100)
@@ -7,6 +10,10 @@ class SharedCart(models.Model):
 
     def __str__(self):
         return self.name
+
+    def clean(self):
+        if not self.name.strip():
+            raise ValidationError("Cart name cannot be empty.")
 
     def total_shared_cost(self):
         return sum(i.quantity * (i.item.price or 0) for i in self.items.filter(is_shared=True))
@@ -37,7 +44,7 @@ class GroceryItem(models.Model):
         ("Household Items", "Household Items"),
     ]
 
-    name = models.CharField(max_length=100, null=False, blank=False)
+    name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
     availability = models.BooleanField(default=True)
@@ -47,14 +54,20 @@ class GroceryItem(models.Model):
         default="N/A",
     )
 
-    def save(self, *args, **kwargs):
-        if self.price is not None and self.price < 0:
-            raise ValueError("Price must be non-negative.")
-        super().save(*args, **kwargs)
-
     def __str__(self):
         return self.name
 
+    def clean(self):
+        if not self.name.strip():
+            raise ValidationError("Item name cannot be empty.")
+        if self.price is not None and self.price < 0:
+            raise ValidationError("Price cannot be negative.")
+
+    def save(self, *args, **kwargs):
+        if self.price is not None:
+            self.price = Decimal(self.price).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        self.clean()  
+        super().save(*args, **kwargs)
 
 class CartItem(models.Model):
     cart = models.ForeignKey(SharedCart, on_delete=models.CASCADE, related_name='items')
@@ -68,11 +81,31 @@ class CartItem(models.Model):
     def __str__(self):
         return f"{self.quantity} x {self.item.name} in {self.cart.name}"
 
+    def clean(self):
+        if self.quantity <= 0:
+            raise ValidationError("Quantity must be greater than 0.")
+
+    def save(self, *args, **kwargs):
+        self.clean()  
+        super().save(*args, **kwargs)
+
+
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
-    message = models.TextField()
+    message = models.TextField(null=True, blank=True)  
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def clean(self):
+        if self.message is None or self.message.strip() == "":
+            raise ValidationError("Message cannot be empty.") 
+    def save(self, *args, **kwargs):
+        self.clean()  
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.message if self.message else "No Message"
+
 
 class PurchaseHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='purchase_history')
