@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,9 +25,11 @@ SECRET_KEY = 'django-insecure-&^zuhal#a0^5(9@tyi$mge&g9qea_!#_=#-ud5xoj@gozjp@)z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'e8ca-195-224-135-106.ngrok-free.app']
 
+CSRF_TRUSTED_ORIGINS = ['https://e8ca-195-224-135-106.ngrok-free.app']
 
+# settings.py
 
 
 # Message Framework
@@ -95,10 +97,16 @@ WSGI_APPLICATION = 'GDC.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'mydatabase',
+        'USER': 'user',
+        'PASSWORD': 'password',
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': '5432',
     }
 }
+
+
 
 
 # Password validation
@@ -135,7 +143,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
