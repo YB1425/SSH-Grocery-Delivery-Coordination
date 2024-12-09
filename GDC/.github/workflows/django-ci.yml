@@ -1,7 +1,7 @@
 name: Django CI
 
 on:
-  push:
+  push: 
   pull_request:
     branches:
       - main
@@ -26,8 +26,10 @@ jobs:
 
     - name: Run migrations
       run: |
+        cd GDC  # Ensure the correct directory
         python manage.py migrate
 
     - name: Run tests
       run: |
+        cd GDC  # Ensure the correct directory
         pytest
