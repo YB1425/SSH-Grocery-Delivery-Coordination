@@ -139,7 +139,7 @@ To make the application accessible over the internet:
 
 - **Load Initial Data**:  
   ```bash
-  docker-compose run web python manage.py loaddata initial_data.json
+  docker-compose run web python manage.py loaddata final__data.json
   ```
 
 - **Run Ngrok**:  
@@ -157,8 +157,7 @@ This project aims to simplify grocery delivery coordination for students living 
 
 ## Features
 
-- **Shared Cart Management**: Collaborative cart for flatmates to add, update, and track grocery items.  
-- **Real-Time Updates**: Dynamic pricing and stock availability through integrated supermarket APIs.  
+- **Shared Cart Management**: Collaborative cart for flatmates to add, update, and track grocery items.   
 - **Cost Splitting**: Automatically calculates and divides costs among users.  
 - **Notification System**: Alerts for changes in shared cart status, such as item additions or purchases.  
 - **Secure Data Handling**: Robust encryption and access controls to protect user data.  
