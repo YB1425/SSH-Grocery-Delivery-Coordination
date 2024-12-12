@@ -29,6 +29,14 @@ If you're using a virtual environment, activate it:
 source env/bin/activate
 ```
 
+After activating the virtual environment, install the required dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+
+
 If `env` doesn't exist, create it:
 
 ```bash
